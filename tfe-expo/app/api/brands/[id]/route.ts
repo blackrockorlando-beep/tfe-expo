@@ -3,7 +3,7 @@ import { createAdminClient } from "@/utils/supabase/admin";
 
 export async function GET(
   request: Request,
-  context: { params: Promise<{ slug: string }> }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const { slug } = await context.params;
