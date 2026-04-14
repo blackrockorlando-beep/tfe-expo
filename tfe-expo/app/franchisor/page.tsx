@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const STEPS = [
   "Brand basics", "Investment & financials", "Item 19", "Operations",
@@ -26,9 +27,12 @@ const SUPPORT_MARKETING = [
 ];
 
 type Territory = { name: string; status: "Open" | "Limited" | "Awarded" };
+type Document = { title: string; description: string; access_type: "Download" | "Request access"; file_url?: string };
 type PnlRow = { label: string; amount: number; pct: number; color: string };
+type Validation = { initials: string; name: string; location: string; months_open: number; quote: string; rating: number };
 
 export default function FranchisorProfilePage() {
+  const router = useRouter();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -99,6 +103,9 @@ export default function FranchisorProfilePage() {
   const [pitchStage, setPitchStage] = useState("");
   const [pitchDuration, setPitchDuration] = useState("");
 
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [validations, setValidations] = useState<Validation[]>([]);
+
   useEffect(() => {
     async function fetchBrand() {
       try {
@@ -149,6 +156,8 @@ export default function FranchisorProfilePage() {
         setPitchTime(b.pitch_time ?? "");
         setPitchStage(b.pitch_stage ?? "");
         setPitchDuration(b.pitch_duration ?? "");
+        setOnthejobHours(String(b.support_onthejob_hours ?? ""));
+        setClassroomHours(String(b.support_classroom_hours ?? ""));
 
         if (b.territories?.length) setTerritories(b.territories.map((t: Territory & { territory_name?: string }) => ({ name: t.territory_name ?? t.name ?? "", status: t.status })));
         if (b.item19_pnl?.length) setPnlRows(b.item19_pnl);
@@ -163,6 +172,12 @@ export default function FranchisorProfilePage() {
         });
         setOngoingSupport(ongoing);
         setMarketingSupport(marketing);
+
+        const docs = b.documents as Document[] ?? [];
+        setDocuments(docs.length ? docs : []);
+
+        const vals = b.validations as Validation[] ?? [];
+        setValidations(vals.length ? vals : []);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load brand.");
       } finally {
@@ -247,8 +262,12 @@ export default function FranchisorProfilePage() {
           unit_count: Number(unitCount) || null, years_franchising: yearsFranchising,
           territory_description: territoryDescription, territories,
           support_ongoing: ongoingSupport, support_marketing: marketingSupport,
+          support_onthejob_hours: Number(onthejobHours) || null,
+          support_classroom_hours: Number(classroomHours) || null,
           rep_name: repName, rep_title: repTitle, rep_availability: repAvailability,
           pitch_time: pitchTime, pitch_stage: pitchStage, pitch_duration: pitchDuration,
+          documents: documents.filter((d) => d.title.trim()),
+          validations: validations.filter((v) => v.name.trim()),
         }),
       });
       if (!res.ok) throw new Error("Save failed.");
@@ -270,7 +289,15 @@ export default function FranchisorProfilePage() {
     <div className="px-8 py-8">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">Brand Profile</h1>
-        <span className="text-xs text-slate-400">Editing: {name || "New brand"}</span>
+        <div className="flex items-center gap-3">
+          {brandId && (
+            <button onClick={() => router.push('/franchisor/pavilion')}
+              className="rounded-lg border border-slate-200 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+              View pavilion →
+            </button>
+          )}
+          <span className="text-xs text-slate-400">Editing: {name || "New brand"}</span>
+        </div>
       </div>
 
       <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
@@ -471,14 +498,42 @@ export default function FranchisorProfilePage() {
         {step === 7 && (
           <div className="space-y-5">
             <h2 className="text-base font-semibold">Documents</h2>
-            <p className="text-sm text-slate-500">Document management coming soon. Use admin portal to manage documents.</p>
+            <div className="space-y-4">
+              {documents.map((doc, i) => (
+                <div key={i} className="rounded-lg border border-slate-200 p-4">
+                  <div className="space-y-3">
+                    <div><label className={labelClass}>Document title</label><input className={inputClass} value={doc.title} onChange={(e) => { const u = [...documents]; u[i] = { ...u[i], title: e.target.value }; setDocuments(u); }} /></div>
+                    <div><label className={labelClass}>Description</label><input className={inputClass} value={doc.description} onChange={(e) => { const u = [...documents]; u[i] = { ...u[i], description: e.target.value }; setDocuments(u); }} /></div>
+                    <div><label className={labelClass}>Access type</label><select className={inputClass} value={doc.access_type} onChange={(e) => { const u = [...documents]; u[i] = { ...u[i], access_type: e.target.value as Document["access_type"] }; setDocuments(u); }}><option>Download</option><option>Request access</option></select></div>
+                    {doc.file_url && <p className="text-xs text-slate-400">File: {doc.file_url}</p>}
+                  </div>
+                  <button type="button" onClick={() => setDocuments(documents.filter((_, j) => j !== i))} className="mt-3 text-xs text-slate-400 hover:text-red-500">Remove</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setDocuments([...documents, { title: "", description: "", access_type: "Download" }])} className="text-sm text-amber-600 hover:underline">+ Add document</button>
+            </div>
           </div>
         )}
 
         {step === 8 && (
           <div className="space-y-5">
             <h2 className="text-base font-semibold">Franchisee validation</h2>
-            <p className="text-sm text-slate-500">Validation management coming soon. Use admin portal to manage validations.</p>
+            <div className="space-y-4">
+              {validations.map((v, i) => (
+                <div key={i} className="rounded-lg border border-slate-200 p-4">
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div><label className={labelClass}>Initials</label><input className={inputClass} value={v.initials} onChange={(e) => { const u = [...validations]; u[i] = { ...u[i], initials: e.target.value }; setValidations(u); }} placeholder="JR" /></div>
+                    <div><label className={labelClass}>Name</label><input className={inputClass} value={v.name} onChange={(e) => { const u = [...validations]; u[i] = { ...u[i], name: e.target.value }; setValidations(u); }} placeholder="Jason R." /></div>
+                    <div><label className={labelClass}>Location</label><input className={inputClass} value={v.location} onChange={(e) => { const u = [...validations]; u[i] = { ...u[i], location: e.target.value }; setValidations(u); }} placeholder="Orlando, FL" /></div>
+                    <div><label className={labelClass}>Months open</label><input type="number" className={inputClass} value={v.months_open || ""} onChange={(e) => { const u = [...validations]; u[i] = { ...u[i], months_open: Number(e.target.value) }; setValidations(u); }} /></div>
+                    <div><label className={labelClass}>Rating (1–5)</label><input type="number" min={1} max={5} className={inputClass} value={v.rating || ""} onChange={(e) => { const u = [...validations]; u[i] = { ...u[i], rating: Number(e.target.value) }; setValidations(u); }} /></div>
+                  </div>
+                  <div><label className={labelClass}>Quote</label><textarea className={`${inputClass} h-24 resize-none`} value={v.quote} onChange={(e) => { const u = [...validations]; u[i] = { ...u[i], quote: e.target.value }; setValidations(u); }} /></div>
+                  <button type="button" onClick={() => setValidations(validations.filter((_, j) => j !== i))} className="mt-3 text-xs text-slate-400 hover:text-red-500">Remove</button>
+                </div>
+              ))}
+              <button type="button" onClick={() => setValidations([...validations, { initials: "", name: "", location: "", months_open: 0, quote: "", rating: 5 }])} className="text-sm text-amber-600 hover:underline">+ Add franchisee</button>
+            </div>
           </div>
         )}
 

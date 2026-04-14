@@ -76,6 +76,22 @@ export default function AllBrandsPage() {
     if (statusFilter === "none" && (statusMap[b.id] || savedIds.has(b.id))) return false;
     return true;
   });
+  const tierOrder: Record<string, number> = { title_sponsor: 0, featured: 1, exhibitor: 2 };
+
+  filtered.sort((a, b) => {
+    // Not interested always last
+    const aNotInterested = statusMap[a.id] === "not_interested" ? 1 : 0;
+    const bNotInterested = statusMap[b.id] === "not_interested" ? 1 : 0;
+    if (aNotInterested !== bNotInterested) return aNotInterested - bNotInterested;
+
+    // Then by tier: title_sponsor > featured > exhibitor
+    const aTier = tierOrder[a.exhibitor_tier ?? "exhibitor"] ?? 2;
+    const bTier = tierOrder[b.exhibitor_tier ?? "exhibitor"] ?? 2;
+    if (aTier !== bTier) return aTier - bTier;
+
+    // Then alphabetical
+    return a.name.localeCompare(b.name);
+  });
 
   if (loading) return <div className="p-8 text-sm text-slate-400">Loading brands...</div>;
 

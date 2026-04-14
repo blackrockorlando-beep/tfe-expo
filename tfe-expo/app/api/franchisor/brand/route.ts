@@ -30,11 +30,25 @@ export async function GET() {
       .select("provided, support_items(id, item_name, support_type)")
       .eq("brand_id", brand.id);
 
+    const { data: documents } = await admin
+      .from("brand_documents")
+      .select("*")
+      .eq("brand_id", brand.id)
+      .order("display_order", { ascending: true });
+
+    const { data: validations } = await admin
+      .from("franchisee_validations")
+      .select("*")
+      .eq("brand_id", brand.id)
+      .order("display_order", { ascending: true });
+
     return NextResponse.json({
       brand: {
         ...brand,
         territories: territories ?? [],
         support_values: supportValues ?? [],
+        documents: documents ?? [],
+        validations: validations ?? [],
       },
     });
   } catch (error) {
@@ -51,7 +65,6 @@ export async function PUT(request: Request) {
 
     const admin = createAdminClient();
 
-    // Verify this user owns a brand
     const { data: brand } = await admin
       .from("brands")
       .select("id")
@@ -73,6 +86,7 @@ export async function PUT(request: Request) {
         ownership_model: body.ownership_model,
         tags: body.tags,
         overview: body.overview,
+        calendly_link: body.calendly_link,
         investment_min: body.investment_min,
         investment_max: body.investment_max,
         franchise_fee: body.franchise_fee,
@@ -98,6 +112,8 @@ export async function PUT(request: Request) {
         unit_count: body.unit_count,
         years_franchising: body.years_franchising,
         territory_description: body.territory_description,
+        support_onthejob_hours: body.support_onthejob_hours,
+        support_classroom_hours: body.support_classroom_hours,
         rep_name: body.rep_name,
         rep_title: body.rep_title,
         rep_availability: body.rep_availability,
@@ -120,6 +136,59 @@ export async function PUT(request: Request) {
           display_order: i + 1,
         }))
       );
+    }
+
+    // Update documents
+    await admin.from("brand_documents").delete().eq("brand_id", brand.id);
+    if (body.documents?.length) {
+      await admin.from("brand_documents").insert(
+        body.documents.map((d: { title: string; description: string; access_type: string; file_url?: string }, i: number) => ({
+          brand_id: brand.id,
+          title: d.title,
+          description: d.description,
+          access_type: d.access_type,
+          file_url: d.file_url || null,
+          display_order: i + 1,
+        }))
+      );
+    }
+
+    // Update validations
+    await admin.from("franchisee_validations").delete().eq("brand_id", brand.id);
+    if (body.validations?.length) {
+      await admin.from("franchisee_validations").insert(
+        body.validations.map((v: { initials: string; name: string; location: string; months_open: number; quote: string; rating: number }, i: number) => ({
+          brand_id: brand.id,
+          initials: v.initials,
+          name: v.name,
+          location: v.location,
+          months_open: v.months_open,
+          quote: v.quote,
+          rating: v.rating,
+          display_order: i + 1,
+        }))
+      );
+    }
+
+    // Update support values
+    if (body.support_ongoing || body.support_marketing) {
+      const { data: allItems } = await admin
+        .from("support_items")
+        .select("id, item_name, support_type");
+
+      if (allItems?.length) {
+        await admin.from("brand_support_values").delete().eq("brand_id", brand.id);
+
+        const supportRows = allItems.map((item) => ({
+          brand_id: brand.id,
+          support_item_id: item.id,
+          provided:
+            (item.support_type === "ongoing" && (body.support_ongoing ?? []).includes(item.item_name)) ||
+            (item.support_type === "marketing" && (body.support_marketing ?? []).includes(item.item_name)),
+        }));
+
+        await admin.from("brand_support_values").insert(supportRows);
+      }
     }
 
     return NextResponse.json({ success: true });
