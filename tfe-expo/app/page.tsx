@@ -335,12 +335,16 @@ const BODY_CONTENT = `<!-- NAV -->
 <nav>
   <div class="nav-logo">The <span>Franchise</span> Edge</div>
   <div class="nav-links">
+<div class="nav-links">
     <a href="#how-it-works">How it works</a>
     <a href="#who-attends">Is this for me?</a>
     <a href="#guarantees">Our guarantees</a>
     <a href="#faq">FAQ</a>
+    <a href="/list-your-brand">List your brand</a>
+    <a href="/login">Buyer login</a>
+    <a href="/franchisor/login">Franchisor login</a>
   </div>
-  <a href="/register" class="nav-cta">Register free →</a>
+  <a href="/register" class="nav-cta">Register free →</a> 
 </nav>
 
 <!-- HERO -->
@@ -716,12 +720,6 @@ const BODY_CONTENT = `<!-- NAV -->
     <a href="#who-attends">Who attends</a>
     <a href="#guarantees">Guarantees</a>
     <a href="#faq">FAQ</a>
-    <a href="/login">Buyer login</a>
-    <a href="/franchisor/login">Franchisor</a>
-    <a href="/presenter/login">Presenter</a>
-    <a href="/admin/login">Admin</a>
-  </div>
-  <div class="footer-links">
     <a href="/login">Buyer login</a>
     <a href="/franchisor/login">Franchisor login</a>
     <a href="/admin/login">Admin</a>
