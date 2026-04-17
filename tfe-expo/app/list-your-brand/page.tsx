@@ -449,7 +449,7 @@ const BODY_CONTENT = `<!-- NAV -->
   <div class="hero-grid-lines"></div>
   <div class="hero-gold-bar"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow fade-up">Spring 2026 Virtual Event</div>
+    <div class="hero-eyebrow fade-up">Summer 2026 Virtual Event</div>
     <h1 class="hero-title fade-up">
       List your brand.<br>
       <em>Own</em> your leads.
@@ -484,7 +484,7 @@ const BODY_CONTENT = `<!-- NAV -->
   <div class="hero-right">
     <div class="hero-card">
       <div class="hero-card-label">Event date</div>
-      <div class="hero-card-date">Spring 2026</div>
+      <div class="hero-card-date">Summer 2026</div>
       <div class="hero-card-sub">Virtual · National reach · No travel</div>
       <div class="spots-bar">
         <div class="spots-label"><span>Booths claimed</span><span>30 of 42</span></div>
@@ -623,7 +623,7 @@ const BODY_CONTENT = `<!-- NAV -->
 <section class="tiers" id="tiers">
   <div class="section-label">Founding exhibitor pricing</div>
   <h2 class="section-title">Choose your listing tier.</h2>
-  <p class="section-sub">Rates are founding pricing only — valid through April 15, 2026. 42 total booths. 30 claimed.</p>
+  <p class="section-sub">Rates are founding pricing only — valid through May 15, 2026. 42 total booths. 30 claimed.</p>
   <div class="tiers-grid">
     <div class="tier-card">
       <div class="tier-top">
@@ -722,8 +722,8 @@ const BODY_CONTENT = `<!-- NAV -->
 <section class="deadline" id="contact">
   <div class="deadline-inner">
     <div class="deadline-left">
-      <h2 class="deadline-title">Founding exhibitor spots close<br><em>April 15, 2026.</em></h2>
-      <p class="deadline-sub">After April 15, rates increase and placement priority shifts to a waitlist. 42 total booths. 30 claimed. 12 remaining.</p>
+      <h2 class="deadline-title">Founding exhibitor spots close<br><em>May 15, 2026.</em></h2>
+      <p class="deadline-sub">After May 15, rates increase and placement priority shifts to a waitlist. 42 total booths. 30 claimed. 12 remaining.</p>
       <div class="deadline-urgency">Registration open now — no commitment until booth is confirmed</div>
       <div style="margin-top:28px;display:flex;gap:14px;flex-wrap:wrap;">
         <a href="mailto:scott@thefranchiseedge.com" class="btn-primary">Reserve your booth now</a>
