@@ -21,14 +21,14 @@ export async function GET(request: Request) {
       const { data: statuses } = await admin.from("buyer_brand_status").select("brand_id, status").eq("buyer_id", buyer.id);
       const { data: interactions } = await admin.from("buyer_brand_interactions").select("brand_id, interaction_type, created_at").eq("buyer_id", buyer.id);
       const { data: sessions } = await admin.from("education_sessions").select("id, session_number, title, scheduled_time, duration_minutes, is_live, recording_available").order("display_order");
-      const { data: signups } = await admin.from("buyer_session_signups").select("session_id, status, attended").eq("buyer_id", buyer.id);
+      const { data: signups } = await admin.from("buyer_session_signups").select("session_id, status, attended,score, completed_at").eq("buyer_id", buyer.id);
       const { data: events } = await admin.from("buyer_schedule_events").select("*").eq("buyer_id", buyer.id).order("scheduled_at");
 
       const savedIds = (saved ?? []).map((s) => s.brand_id);
       const statusMap: Record<string, string> = {};
       (statuses ?? []).forEach((s) => { statusMap[s.brand_id] = s.status; });
-      const signupMap: Record<string, { status: string; attended: boolean }> = {};
-      (signups ?? []).forEach((s) => { signupMap[s.session_id] = { status: s.status, attended: s.attended }; });
+      const signupMap: Record<string, { status: string; attended: boolean; score?: number; completed_at?: string }> = {};
+signups.forEach((s: any) => { signupMap[s.session_id] = { status: s.status, attended: s.attended, score: s.score ?? undefined, completed_at: s.completed_at ?? undefined }; });
 
       // Match brands by buyer preferences
       const notInterestedIds = new Set(Object.entries(statusMap).filter(([, v]) => v === "not_interested").map(([k]) => k));

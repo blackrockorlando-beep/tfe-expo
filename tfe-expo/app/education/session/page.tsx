@@ -28,6 +28,8 @@ export default function EducationSessionPage() {
   const [sessionSeconds, setSessionSeconds] = useState(0);
   const [myNotes, setMyNotes] = useState("");
   const [slidesViewed, setSlidesViewed] = useState<Set<number>>(new Set([0]));
+  const [completed, setCompleted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -101,7 +103,7 @@ export default function EducationSessionPage() {
   }
 
   const slide = slides[currentSlide];
-  const presenter = session.presenters;
+  const presenter = session.presenters ?? { initials: "TFE", full_name: "TFE Education Team", title: "Demo Presenter", organization: "The Franchise Edge", avatar_color: "#F59E0B" };
   const totalDuration = session.duration_minutes * 60;
   const sessionScore = Math.min(100, Math.round(
     (slidesViewed.size / slides.length) * 40 + questions.filter((q) => q.is_answered).length * 5 + (votedIds.size > 0 ? 15 : 0) + (myNotes.length > 0 ? 10 : 0) + 20
@@ -122,6 +124,9 @@ export default function EducationSessionPage() {
             <span style={{ fontSize: "14px", fontWeight: 600, color: "#fff" }}>Education Track</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+            <a href="/dashboard/education" style={{ fontSize: "13px", fontWeight: 500, color: "#94A3B8", textDecoration: "none", display: "flex", alignItems: "center", gap: "6px", padding: "6px 14px", borderRadius: "8px", border: "1px solid #334155", cursor: "pointer" }}>
+              ← Back to Dashboard
+            </a>
             {session.is_live && (
               <span style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "rgba(16,185,129,0.12)", borderRadius: "20px", padding: "6px 14px", fontSize: "12px", fontWeight: 600, color: "#34D399" }}>
                 <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#34D399" }} />
@@ -385,7 +390,33 @@ export default function EducationSessionPage() {
               <div style={{ height: "1px", background: "#1E293B", margin: "28px 0" }} />
 
               <div style={{ borderRadius: "12px", border: "1px solid rgba(245,158,11,0.2)", background: "rgba(120,53,15,0.2)", padding: "20px" }}>
-                <p style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.2em", color: "#F59E0B", marginBottom: "8px" }}>EDUCATION GUARANTEE</p>
+                {/* Complete Session Button */}
+              <div style={{ marginBottom: "28px" }}>
+                {completed ? (
+                  <div style={{ borderRadius: "12px", border: "1px solid rgba(52,211,153,0.3)", background: "rgba(52,211,153,0.08)", padding: "20px", textAlign: "center" }}>
+                    <p style={{ fontSize: "14px", fontWeight: 600, color: "#34D399", margin: 0 }}>Session Complete — Score: {sessionScore}/100</p>
+                    <a href="/dashboard/education" style={{ display: "inline-block", marginTop: "12px", fontSize: "13px", color: "#94A3B8", textDecoration: "underline" }}>← Back to Education Sessions</a>
+                  </div>
+                ) : (
+                  <button onClick={async () => {
+                    setSaving(true);
+                    try {
+                      await fetch("/api/dashboard/sessions", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ sessionId, action: "complete", score: sessionScore }),
+                      });
+                      setCompleted(true);
+                    } catch (e) { console.error(e); }
+                    setSaving(false);
+                  }}
+                    disabled={saving}
+                    style={{ width: "100%", padding: "16px", borderRadius: "12px", border: "none", background: "#F59E0B", color: "#0B1120", fontSize: "15px", fontWeight: 700, cursor: "pointer", opacity: saving ? 0.6 : 1 }}>
+                    {saving ? "Saving..." : `Complete Session — Score: ${sessionScore}/100`}
+                  </button>
+                )}
+              </div>
+              <p style={{ fontSize: "10px", fontWeight: 700, letterSpacing: "0.2em", color: "#F59E0B", marginBottom: "8px" }}>EDUCATION GUARANTEE</p>
                 <p style={{ fontSize: "14px", color: "#CBD5E1", lineHeight: 1.6, margin: 0 }}>
                   Complete all 4 sessions and leave unprepared — free seat at the next event + a 1-on-1 matching call.
                 </p>

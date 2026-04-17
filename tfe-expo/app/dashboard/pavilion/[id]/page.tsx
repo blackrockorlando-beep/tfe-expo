@@ -7,6 +7,7 @@ type Territory = { territory_name: string; status: string };
 type Validation = { initials: string; name: string; location: string; months_open: number; quote: string; rating: number };
 type SupportValue = { provided: boolean; support_items: { item_name: string; support_type: string } };
 type DocItem = { title: string; description: string; access_type: string };
+type InvestmentItem = { label: string; low: number; high: number };
 type Brand = {
   id: string; name: string; slug: string; category: string; description: string; overview: string;
   ownership_model: string; ownership_model_detail: string; investment_min: number; investment_max: number;
@@ -18,6 +19,7 @@ type Brand = {
   item19_avg_net_revenue: number; item19_notes: string; item19_pnl: { label: string; amount: number; pct: number; color: string }[];
   territory_description: string; territories: Territory[]; validations: Validation[];
   documents: DocItem[];
+  initial_investment_items: InvestmentItem[];
   support_values: SupportValue[]; rep_name: string; rep_title: string;
   calendly_link: string | null; pitch_time: string; pitch_duration: string;
   logo_url: string | null; hero_image_url: string | null;
@@ -33,6 +35,14 @@ function fmtPct(n: number | null | undefined): string {
   return Number.isInteger(n) ? `${n}%` : `${n.toFixed(1)}%`;
 }
 
+function calcRIR(auv: number | null | undefined, min: number | null | undefined, max: number | null | undefined): string {
+  if (!auv || !min || !max) return "N/A";
+  const avg = (min + max) / 2;
+  if (avg === 0) return "N/A";
+  const ratio = auv / avg;
+  return ratio.toFixed(1) + "×";
+}
+
 export default function PavilionPage() {
   const params = useParams();
   const router = useRouter();
@@ -42,7 +52,7 @@ export default function PavilionPage() {
   const [brand, setBrand] = useState<Brand | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overview" | "financials" | "territory" | "support" | "documents" | "validation">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "investment" | "financials" | "territory" | "support" | "documents" | "validation">("overview");
 
   useEffect(() => {
     async function load() {
@@ -83,12 +93,8 @@ export default function PavilionPage() {
   const ongoingSupport = brand.support_values.filter((s) => s.provided && s.support_items?.support_type === "ongoing").map((s) => s.support_items.item_name);
   const marketingSupport = brand.support_values.filter((s) => s.provided && s.support_items?.support_type === "marketing").map((s) => s.support_items.item_name);
 
-  // Find max pct for scaling bars
-  const maxPct = brand.item19_pnl?.length ? Math.max(...brand.item19_pnl.map(r => r.pct), 1) : 1;
-
   return (
     <div className="px-8 py-8">
-      {/* Back button */}
       <button onClick={() => router.back()} className="mb-4 rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition">
         ← Back
       </button>
@@ -166,15 +172,17 @@ export default function PavilionPage() {
 
       {/* Tabs */}
       <div className="mt-6 flex gap-2">
-        {(["overview", "financials", "territory", "support", "documents", "validation"] as const).map((tab) => (
+        {(["overview", "investment", "financials", "territory", "support", "documents", "validation"] as const).map((tab) => (
           <button key={tab} onClick={() => setActiveTab(tab)}
             className={`rounded-full px-4 py-1.5 text-sm font-medium transition ${activeTab === tab ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}>
-            {tab === "overview" ? "Overview" : tab === "financials" ? "Financials" : tab === "territory" ? "Territory" : tab === "support" ? "Support" : tab === "documents" ? "Documents" : "Validation"}
+            {tab === "overview" ? "Overview" : tab === "investment" ? "Investment" : tab === "financials" ? "Financials" : tab === "territory" ? "Territory" : tab === "support" ? "Support" : tab === "documents" ? "Documents" : "Validation"}
           </button>
         ))}
       </div>
 
       <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-6">
+
+        {/* OVERVIEW TAB */}
         {activeTab === "overview" && (
           <div className="space-y-6">
             <div style={{ display: "grid", gridTemplateColumns: brand.hero_image_url ? "280px 1fr" : "1fr", gap: "24px" }}>
@@ -206,8 +214,67 @@ export default function PavilionPage() {
           </div>
         )}
 
-        {activeTab === "financials" && (
+        {/* INVESTMENT TAB */}
+        {activeTab === "investment" && (
           <div className="space-y-6">
+            {brand.initial_investment_items?.length > 0 ? (
+              <div>
+                <h3 className="text-sm font-semibold text-slate-700 mb-4">Initial Investment (Item 7)</h3>
+                <div style={{ border: "1px solid #e2e8f0", borderRadius: 8, overflow: "hidden" }}>
+                  <div style={{ display: "grid", gridTemplateColumns: "1.2fr 1fr", background: "#1e293b", padding: "10px 16px" }}>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 1 }}>Type of Expenditure</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.7)", textTransform: "uppercase", letterSpacing: 1, textAlign: "center" }}>Amount (Low – High)</span>
+                  </div>
+                  {brand.initial_investment_items.map((item, i) => (
+                    <div key={i} style={{
+                      display: "grid", gridTemplateColumns: "1.2fr 1fr", padding: "12px 16px",
+                      borderBottom: "1px solid #f1f5f9",
+                      background: i % 2 === 0 ? "#ffffff" : "#f0f4f8",
+                    }}>
+                      <span style={{ fontSize: 14, color: "#334155", fontWeight: item.label.toLowerCase().includes("franchise fee") ? 600 : 400 }}>{item.label}</span>
+                      <span style={{ fontSize: 14, color: "#334155", textAlign: "center", fontWeight: 500 }}>
+                        {item.low === item.high ? fmt(item.low) : `${fmt(item.low)} – ${fmt(item.high)}`}
+                      </span>
+                    </div>
+                  ))}
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "1.2fr 1fr", padding: "14px 16px",
+                    background: "#f0fdf4", borderTop: "2px solid #166534",
+                  }}>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#166534" }}>Total Estimated Initial Investment</span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: "#166534", textAlign: "center" }}>
+                      {fmt(brand.investment_min)} – {fmt(brand.investment_max)}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <p className="text-sm text-slate-400">No initial investment breakdown available. Contact the franchisor for Item 7 details.</p>
+            )}
+          </div>
+        )}
+
+        {/* FINANCIALS TAB */}
+        {activeTab === "financials" && (
+          <div className="space-y-8">
+
+            {/* Key Metrics */}
+            <div className="grid grid-cols-3 gap-4">
+              <div className="rounded-xl p-5 text-center" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px solid #166534", borderRadius: 12 }}>
+                <p className="text-xs uppercase tracking-wide" style={{ color: "#166534" }}>Median Gross</p>
+                <p className="text-2xl font-bold mt-2" style={{ color: "#166534" }}>{fmt(brand.item19_median_gross)}</p>
+              </div>
+              <div className="rounded-xl p-5 text-center" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px solid #166534", borderRadius: 12 }}>
+                <p className="text-xs uppercase tracking-wide" style={{ color: "#166534" }}>Top Quartile</p>
+                <p className="text-2xl font-bold mt-2" style={{ color: "#166534" }}>{fmt(brand.item19_top_quartile_gross)}</p>
+              </div>
+              <div className="rounded-xl p-5 text-center" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px solid #166534", borderRadius: 12 }}>
+                <p className="text-xs uppercase tracking-wide" style={{ color: "#166534" }}>Revenue to Investment Ratio</p>
+                <p className="text-2xl font-bold mt-2" style={{ color: "#166534" }}>{calcRIR(brand.auv, brand.investment_min, brand.investment_max)}</p>
+              </div>
+            </div>
+
+            {/* Item 19 Performance */}
             {brand.item19_present ? (
               <>
                 <div>
@@ -215,32 +282,14 @@ export default function PavilionPage() {
                   <p className="text-sm text-slate-600">{brand.item19_summary}</p>
                 </div>
 
-                {/* Key metrics cards */}
-                <div className="grid grid-cols-3 gap-4">
-                  <div className="rounded-xl p-5 text-center" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px solid #166534", borderRadius: 12 }}>
-                  <p className="text-xs uppercase tracking-wide" style={{ color: "#166534" }}>Median Gross</p>
-                  <p className="text-2xl font-bold mt-2" style={{ color: "#166534" }}>{fmt(brand.item19_median_gross)}</p>
-                  </div>
-                  <div className="rounded-xl p-5 text-center" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px solid #166534", borderRadius: 12 }}>
-                  <p className="text-xs text-emerald-600 uppercase tracking-wide">Top Quartile</p>
-                  <p className="text-2xl font-bold mt-2 text-emerald-700">{fmt(brand.item19_top_quartile_gross)}</p>
-                  </div>
-                  <div className="rounded-xl p-5 text-center" style={{ background: "linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%)", border: "1.5px solid #166534", borderRadius: 12 }}>
-                  <p className="text-xs uppercase tracking-wide" style={{ color: "#166534" }}>Avg Net Revenue</p>
-                  <p className="text-2xl font-bold mt-2" style={{ color: "#166534" }}>{fmt(brand.item19_avg_net_revenue)}</p>
-                  </div>
-                </div>
-
-                {/* P&L horizontal bar chart */}
+                {/* P&L bar chart */}
                 {brand.item19_pnl?.length > 0 && brand.item19_pnl.some(r => r.amount > 0) ? (
                   <div>
                     <h3 className="text-sm font-semibold text-slate-700 mb-4">Unit-Level P&L</h3>
                     <div className="space-y-3">
                       {brand.item19_pnl.map((row, i) => {
                         const isEarnings = row.label.toLowerCase().includes("earnings") || row.label.toLowerCase().includes("ebitda");
-                        const barColor = isEarnings ? "#10b981" : "#f87171";
                         const barWidth = Math.max(row.pct, 2);
-
                         return (
                           <div key={i}>
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 4 }}>
@@ -259,20 +308,12 @@ export default function PavilionPage() {
                 ) : (
                   <div className="rounded-xl border border-slate-200 p-6" style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)" }}>
                     <h3 className="text-sm font-semibold text-slate-700 mb-3">Understanding Item 19 (Financial Performance Information)</h3>
-                    <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                      Not all franchisors include detailed P&L data in their Item 19. While many brands choose to share financial performance information, some franchisors prefer not to provide this level of detail for a variety of legitimate reasons.
-                    </p>
-                    <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                      What&apos;s most important is that you still have the ability to gather the insights you need to make an informed decision.
-                    </p>
+                    <p className="text-sm text-slate-600 leading-relaxed mb-4">Not all franchisors include detailed P&L data in their Item 19. While many brands choose to share financial performance information, some franchisors prefer not to provide this level of detail for a variety of legitimate reasons.</p>
+                    <p className="text-sm text-slate-600 leading-relaxed mb-4">What&apos;s most important is that you still have the ability to gather the insights you need to make an informed decision.</p>
                     <h4 className="text-sm font-semibold text-slate-700 mb-2">How to Get the Full Picture</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                      We strongly encourage you to speak directly with existing franchisees. Ask about their sales, expenses, and overall performance. Understand what it really takes to succeed in their market. These conversations often provide real-world context and transparency that goes beyond what any document can show.
-                    </p>
+                    <p className="text-sm text-slate-600 leading-relaxed mb-4">We strongly encourage you to speak directly with existing franchisees. Ask about their sales, expenses, and overall performance. Understand what it really takes to succeed in their market. These conversations often provide real-world context and transparency that goes beyond what any document can show.</p>
                     <h4 className="text-sm font-semibold text-slate-700 mb-2">Our Recommendation</h4>
-                    <p className="text-sm text-slate-600 leading-relaxed">
-                      Use this opportunity to ask thoughtful, specific questions and compare feedback across multiple operators. The franchisee validation tab is a great place to start.
-                    </p>
+                    <p className="text-sm text-slate-600 leading-relaxed">Use this opportunity to ask thoughtful, specific questions and compare feedback across multiple operators. The franchisee validation tab is a great place to start.</p>
                   </div>
                 )}
 
@@ -285,36 +326,29 @@ export default function PavilionPage() {
             ) : (
               <div className="rounded-xl border border-slate-200 p-6" style={{ background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)" }}>
                 <h3 className="text-sm font-semibold text-slate-700 mb-3">Understanding Item 19 (Financial Performance Information)</h3>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  Not all franchisors include an Item 19 in their Franchise Disclosure Document (FDD). While many brands choose to share financial performance information, it is not required, and some franchisors prefer not to provide this data for a variety of legitimate reasons.
-                </p>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  What&apos;s most important is that you still have the ability to gather the insights you need to make an informed decision.
-                </p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">Not all franchisors include an Item 19 in their Franchise Disclosure Document (FDD). While many brands choose to share financial performance information, it is not required, and some franchisors prefer not to provide this data for a variety of legitimate reasons.</p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">What&apos;s most important is that you still have the ability to gather the insights you need to make an informed decision.</p>
                 <h4 className="text-sm font-semibold text-slate-700 mb-2">How to Get the Full Picture</h4>
-                <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                  We strongly encourage you to speak directly with existing franchisees. Ask about their sales, expenses, and overall performance. Understand what it really takes to succeed in their market. These conversations often provide real-world context and transparency that goes beyond what any document can show.
-                </p>
+                <p className="text-sm text-slate-600 leading-relaxed mb-4">We strongly encourage you to speak directly with existing franchisees. Ask about their sales, expenses, and overall performance. Understand what it really takes to succeed in their market. These conversations often provide real-world context and transparency that goes beyond what any document can show.</p>
                 <h4 className="text-sm font-semibold text-slate-700 mb-2">Our Recommendation</h4>
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  Use this opportunity to ask thoughtful, specific questions and compare feedback across multiple operators. The franchisee validation tab is a great place to start.
-                </p>
+                <p className="text-sm text-slate-600 leading-relaxed">Use this opportunity to ask thoughtful, specific questions and compare feedback across multiple operators. The franchisee validation tab is a great place to start.</p>
               </div>
             )}
           </div>
         )}
 
+        {/* TERRITORY TAB */}
         {activeTab === "territory" && (
           <div className="space-y-6">
             {brand.territory_description && <p className="text-sm text-slate-600">{brand.territory_description}</p>}
             {brand.territories?.length > 0 ? (
               <div className="divide-y divide-slate-100 rounded-lg border border-slate-200">
                 {brand.territories.map((t, i) => (
-                  <div key={i} className="flex items-center justify-between px-4 py-3">
-                    <p className="text-sm">{t.territory_name}</p>
+                  <div key={i} className="flex items-center px-4 py-3" style={{ gap: '1.5rem' }}>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${t.status === "Open" ? "bg-emerald-100 text-emerald-700" : t.status === "Limited" ? "bg-amber-100 text-amber-700" : "bg-slate-100 text-slate-600"}`}>
                       {t.status}
                     </span>
+                    <p className="text-sm">{t.territory_name}</p>
                   </div>
                 ))}
               </div>
@@ -324,6 +358,7 @@ export default function PavilionPage() {
           </div>
         )}
 
+        {/* SUPPORT TAB */}
         {activeTab === "support" && (
           <div className="space-y-6">
             {ongoingSupport.length > 0 && (
@@ -352,6 +387,7 @@ export default function PavilionPage() {
           </div>
         )}
 
+        {/* DOCUMENTS TAB */}
         {activeTab === "documents" && (
           <div className="space-y-4">
             {brand.documents?.length > 0 ? (
@@ -372,6 +408,7 @@ export default function PavilionPage() {
           </div>
         )}
 
+        {/* VALIDATION TAB */}
         {activeTab === "validation" && (
           <div className="space-y-4">
             {brand.validations?.length > 0 ? (
@@ -399,6 +436,7 @@ export default function PavilionPage() {
             )}
           </div>
         )}
+
       </div>
     </div>
   );

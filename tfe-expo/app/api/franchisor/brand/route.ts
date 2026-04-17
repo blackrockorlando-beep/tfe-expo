@@ -75,7 +75,23 @@ export async function PUT(request: Request) {
 
     const body = await request.json();
 
-    // Update brand
+    // Derive investment_min, investment_max, franchise_fee from initial_investment_items
+    const items = body.initial_investment_items ?? [];
+    let derivedMin = body.investment_min;
+    let derivedMax = body.investment_max;
+    let derivedFee = body.franchise_fee;
+
+    if (items.length > 0) {
+      derivedMin = items.reduce((sum: number, item: { low: number }) => sum + (item.low || 0), 0);
+      derivedMax = items.reduce((sum: number, item: { high: number }) => sum + (item.high || 0), 0);
+      const feeItem = items.find((item: { label: string }) =>
+        item.label.toLowerCase().includes("franchise fee")
+      );
+      if (feeItem) {
+        derivedFee = feeItem.high || feeItem.low || derivedFee;
+      }
+    }
+
     const { error: updateError } = await admin
       .from("brands")
       .update({
@@ -87,9 +103,10 @@ export async function PUT(request: Request) {
         tags: body.tags,
         overview: body.overview,
         calendly_link: body.calendly_link,
-        investment_min: body.investment_min,
-        investment_max: body.investment_max,
-        franchise_fee: body.franchise_fee,
+        investment_min: derivedMin,
+        investment_max: derivedMax,
+        franchise_fee: derivedFee,
+        initial_investment_items: items,
         royalty_pct: body.royalty_pct,
         auv: body.auv,
         payback_period: body.payback_period,

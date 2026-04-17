@@ -30,6 +30,7 @@ type Territory = { name: string; status: "Open" | "Limited" | "Awarded" };
 type Document = { title: string; description: string; access_type: "Download" | "Request access"; file_url?: string };
 type PnlRow = { label: string; amount: number; pct: number; color: string };
 type Validation = { initials: string; name: string; location: string; months_open: number; quote: string; rating: number };
+type InvestmentItem = { label: string; low: number; high: number };
 
 export default function FranchisorProfilePage() {
   const router = useRouter();
@@ -62,6 +63,7 @@ export default function FranchisorProfilePage() {
   const [paybackPeriod, setPaybackPeriod] = useState("");
   const [liquidCapital, setLiquidCapital] = useState("");
   const [sbaEligible, setSbaEligible] = useState(false);
+  const [investmentItems, setInvestmentItems] = useState<InvestmentItem[]>([]);
 
   const [item19Present, setItem19Present] = useState(false);
   const [item19FiscalYear, setItem19FiscalYear] = useState("");
@@ -158,6 +160,7 @@ export default function FranchisorProfilePage() {
         setPitchDuration(b.pitch_duration ?? "");
         setOnthejobHours(String(b.support_onthejob_hours ?? ""));
         setClassroomHours(String(b.support_classroom_hours ?? ""));
+        setInvestmentItems(b.initial_investment_items ?? []);
 
         if (b.territories?.length) setTerritories(b.territories.map((t: Territory & { territory_name?: string }) => ({ name: t.territory_name ?? t.name ?? "", status: t.status })));
         if (b.item19_pnl?.length) setPnlRows(b.item19_pnl);
@@ -242,9 +245,7 @@ export default function FranchisorProfilePage() {
           name, slug, category, description, ownership_model: ownershipModel,
           tags: tags.split(",").map((t) => t.trim()).filter(Boolean),
           overview, calendly_link: calendlyLink,
-          investment_min: Number(investmentMin) || null,
-          investment_max: Number(investmentMax) || null,
-          franchise_fee: Number(franchiseFee) || null,
+          initial_investment_items: investmentItems,
           royalty_pct: Number(royaltyPct) || null,
           auv: Number(auv) || null, payback_period: paybackPeriod,
           liquid_capital_required: Number(liquidCapital) || null,
@@ -369,21 +370,50 @@ export default function FranchisorProfilePage() {
           </div>
         )}
 
-        {step === 1 && (
+{step === 1 && (
           <div className="space-y-5">
             <h2 className="text-base font-semibold">Investment & financials</h2>
+
+            {/* Item 7 — Initial Investment Breakdown */}
+            <div>
+              <label className={labelClass}>Initial Investment Breakdown (Item 7)</label>
+              <p className="text-xs text-slate-400 mb-3">Enter each line item from your FDD Item 7. Investment range, franchise fee, and totals are calculated automatically.</p>
+              <div className="space-y-2">
+                {investmentItems.map((item, i) => (
+                  <div key={i} className="flex gap-2 items-center">
+                    <input className={`${inputClass} flex-1`} value={item.label} placeholder="Type of expenditure"
+                      onChange={(e) => { const u = [...investmentItems]; u[i] = { ...u[i], label: e.target.value }; setInvestmentItems(u); }} />
+                    <input type="number" className={inputClass} style={{ width: 120 }} value={item.low || ""} placeholder="Low"
+                      onChange={(e) => { const u = [...investmentItems]; u[i] = { ...u[i], low: Number(e.target.value) }; setInvestmentItems(u); }} />
+                    <input type="number" className={inputClass} style={{ width: 120 }} value={item.high || ""} placeholder="High"
+                      onChange={(e) => { const u = [...investmentItems]; u[i] = { ...u[i], high: Number(e.target.value) }; setInvestmentItems(u); }} />
+                    <button type="button" onClick={() => setInvestmentItems(investmentItems.filter((_, j) => j !== i))} className="text-xs text-slate-400 hover:text-red-500">✕</button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => setInvestmentItems([...investmentItems, { label: "", low: 0, high: 0 }])} className="text-sm text-amber-600 hover:underline">+ Add line item</button>
+              </div>
+              {investmentItems.length > 0 && (
+                <div className="mt-3 rounded-lg bg-slate-50 border border-slate-200 p-3 flex justify-between text-sm">
+                  <span className="font-medium text-slate-600">Totals (auto-calculated):</span>
+                  <span className="font-semibold text-slate-800">
+                    ${investmentItems.reduce((s, i) => s + (i.low || 0), 0).toLocaleString()} – ${investmentItems.reduce((s, i) => s + (i.high || 0), 0).toLocaleString()}
+                  </span>
+                </div>
+              )}
+            </div>
+
             <div className="grid grid-cols-2 gap-5">
-              <div><label className={labelClass}>Investment min ($)</label><input type="number" className={inputClass} value={investmentMin} onChange={(e) => setInvestmentMin(e.target.value)} /></div>
-              <div><label className={labelClass}>Investment max ($)</label><input type="number" className={inputClass} value={investmentMax} onChange={(e) => setInvestmentMax(e.target.value)} /></div>
-              <div><label className={labelClass}>Franchise fee ($)</label><input type="number" className={inputClass} value={franchiseFee} onChange={(e) => setFranchiseFee(e.target.value)} /></div>
               <div><label className={labelClass}>Royalty %</label><input type="number" step="0.1" className={inputClass} value={royaltyPct} onChange={(e) => setRoyaltyPct(e.target.value)} /></div>
               <div><label className={labelClass}>AUV ($)</label><input type="number" className={inputClass} value={auv} onChange={(e) => setAuv(e.target.value)} /></div>
               <div><label className={labelClass}>Payback period</label><input className={inputClass} value={paybackPeriod} onChange={(e) => setPaybackPeriod(e.target.value)} placeholder="18-24 months" /></div>
               <div><label className={labelClass}>Liquid capital required ($)</label><input type="number" className={inputClass} value={liquidCapital} onChange={(e) => setLiquidCapital(e.target.value)} /></div>
               <div className="flex items-end"><label className="flex items-center gap-2 text-sm"><input type="checkbox" checked={sbaEligible} onChange={(e) => setSbaEligible(e.target.checked)} className="rounded" /> SBA eligible</label></div>
             </div>
+
+            <p className="text-xs text-slate-400">Investment range and franchise fee are derived from your Item 7 breakdown above. No need to enter them separately.</p>
           </div>
         )}
+
 
         {step === 2 && (
           <div className="space-y-5">
