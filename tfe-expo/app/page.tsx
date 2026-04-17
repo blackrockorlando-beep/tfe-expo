@@ -464,7 +464,7 @@ const BODY_CONTENT = `<!-- NAV -->
     <div class="hero-card">
       <div class="hero-card-header">
         <div class="hero-card-title">TFE Virtual Expo · Spring 2026</div>
-        <div class="hero-card-date">100% Free to attend</div>
+        <div class="hero-card-date">1000% Free to attend</div>
       </div>
       <div class="hero-card-body">
         <div class="hero-card-stat">
