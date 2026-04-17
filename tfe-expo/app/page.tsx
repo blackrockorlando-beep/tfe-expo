@@ -329,6 +329,101 @@ footer {
   .types-grid { grid-template-columns: 1fr 1fr; }
   .guarantee-cards-buyer { grid-template-columns: 1fr; }
   .faq-grid { grid-template-columns: 1fr; }
+  .fear-grid { grid-template-columns: 1fr; }
+}
+
+@media(max-width: 640px){
+  /* NAV */
+  nav { padding: 0 16px; height: 54px; }
+  .nav-links { display: none; }
+  .nav-cta { font-size: 12px; padding: 8px 16px; }
+
+  /* HERO */
+  .hero { padding: 70px 20px 40px; gap: 32px; min-height: auto; }
+  .hero-title { font-size: 38px !important; }
+  .hero-sub { font-size: 15px; margin-bottom: 28px; }
+  .hero-form { flex-direction: column; border: none; gap: 10px; }
+  .hero-form input { border: 1.5px solid var(--ink); border-radius: 2px; padding: 14px 16px; }
+  .hero-form button { border-radius: 2px; padding: 14px; text-align: center; }
+  .hero-card { margin-top: 8px; }
+  .hero-card-header { padding: 14px 16px; flex-direction: column; gap: 4px; }
+  .hero-card-body { padding: 16px; }
+  .hcs-num { font-size: 28px; }
+  .hero-card-stat { margin-bottom: 14px; padding-bottom: 14px; }
+  .hero-card-footer { padding: 12px 16px; }
+
+  /* FEAR */
+  .fear { padding: 56px 20px; }
+  .fear-title { font-size: 28px !important; }
+  .fear-sub { font-size: 14px; margin-bottom: 32px; }
+  .fear-grid { grid-template-columns: 1fr; gap: 0; }
+  .fear-card { padding: 24px 20px; }
+  .fear-stat { font-size: 36px; margin-bottom: 10px; }
+  .fear-card-title { font-size: 15px; }
+  .fear-card-body { font-size: 13px; }
+
+  /* DIFFERENCE */
+  .diff { padding: 56px 20px; }
+  .section-title { font-size: 28px !important; }
+  .section-sub { font-size: 14px; margin-bottom: 32px; }
+  .diff-layout { gap: 32px; }
+  .diff-item { padding: 20px 0; gap: 14px; }
+  .diff-num { font-size: 22px; width: 28px; }
+  .diff-title { font-size: 15px; }
+  .diff-body { font-size: 13px; }
+  .diff-table-header { font-size: 9px; }
+  .dth { padding: 10px 8px; font-size: 9px; }
+  .dtc { padding: 10px 8px; font-size: 11px; }
+
+  /* JOURNEY */
+  .journey { padding: 56px 20px; }
+  .journey-steps { margin-top: 32px; gap: 0; }
+  .journey-step { padding: 24px 20px; }
+  .journey-step::after { display: none; }
+  .js-num { font-size: 36px; margin-bottom: 8px; }
+  .js-title { font-size: 15px; }
+  .js-body { font-size: 13px; }
+
+  /* TYPES */
+  .types { padding: 56px 20px; }
+  .types-grid { grid-template-columns: 1fr; gap: 12px; margin-top: 32px; }
+  .type-card { padding: 20px; }
+  .type-title { font-size: 15px; }
+  .type-body { font-size: 13px; }
+
+  /* GUARANTEES */
+  .guarantees { padding: 56px 20px; }
+  .guarantee-cards-buyer { gap: 12px; margin-bottom: 24px; }
+  .gb-top { padding: 20px 18px 16px; }
+  .gb-name { font-size: 15px; }
+  .gb-condition { font-size: 12.5px; }
+  .gb-remedy { padding: 14px 18px; }
+  .gb-remedy-text { font-size: 12.5px; }
+  .guarantee-master-buyer { padding: 24px 20px; gap: 24px; grid-template-columns: 1fr; }
+  .gmb-title { font-size: 22px !important; }
+  .gmb-body { font-size: 13px; }
+  .gmb-contact { padding: 18px 20px; }
+
+  /* FAQ */
+  .faq { padding: 56px 20px; }
+  .faq-grid { gap: 0; }
+  .faq-item { padding: 18px 0; }
+  .faq-q { font-size: 14px; margin-bottom: 8px; }
+  .faq-a { font-size: 13px; }
+
+  /* REGISTER CTA */
+  .register { padding: 64px 20px; }
+  .register-title { font-size: 32px !important; }
+  .register-sub { font-size: 14px; margin-bottom: 28px; }
+  .register-form { flex-direction: column; border: none; gap: 10px; }
+  .register-form input { border: 1.5px solid var(--ink); border-radius: 2px; padding: 14px 16px; }
+  .register-form button { border-radius: 2px; padding: 14px; text-align: center; }
+  .register-notes { gap: 12px; margin-top: 16px; }
+  .register-deadline { padding: 12px 16px; margin-top: 24px; }
+
+  /* FOOTER */
+  footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .footer-links { flex-wrap: wrap; gap: 12px; }
 }`;
 
 const BODY_CONTENT = `<!-- NAV -->
