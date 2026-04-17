@@ -106,32 +106,50 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-1 flex-col">
-      {/* Header — welcome + stats + live badge all on one line */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        .dash-stats-row { display: flex; gap: 8px; flex: 1; }
+        .dash-stats-row > div { flex: 1; }
+        .dash-header-inner { display: flex; align-items: center; gap: 24px; }
+        .dash-recommended-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .dash-main-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+        .dash-matched-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .dash-live-badge { min-width: fit-content; display: flex; align-items: center; gap: 6px; }
+        @media(max-width: 768px) {
+          .dash-header-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
+          .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: none; width: 100%; }
+          .dash-recommended-grid { grid-template-columns: 1fr 1fr; }
+          .dash-main-grid { grid-template-columns: 1fr; }
+          .dash-matched-grid { grid-template-columns: 1fr; }
+          .dash-live-badge { display: none; }
+        }
+      `}} />
+
+      {/* Header — welcome + stats + live badge */}
       <div className="border-b border-slate-100 px-8 py-4">
-        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+        <div className="dash-header-inner">
           <div style={{ minWidth: "fit-content" }}>
             <h1 className="text-xl font-semibold">Welcome back{firstName ? `, ${firstName}` : ""}</h1>
             <p className="text-sm text-slate-500 mt-0.5">Your virtual expo dashboard</p>
           </div>
-          <div style={{ display: "flex", gap: "8px", flex: 1 }}>
-            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div className="dash-stats-row">
+            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span className="text-xs font-semibold tracking-widest text-slate-400">MATCHED</span>
               <span className="text-lg font-bold">{matched.length}</span>
             </div>
-            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span className="text-xs font-semibold tracking-widest text-slate-400">SAVED</span>
               <span className="text-lg font-bold">{savedIds.size}</span>
             </div>
-            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span className="text-xs font-semibold tracking-widest text-slate-400">INTERESTED</span>
               <span className="text-lg font-bold text-emerald-600">{interestedCount}</span>
             </div>
-            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+            <div className="rounded-lg bg-slate-50 px-3 py-2" style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
               <span className="text-xs font-semibold tracking-widest text-slate-400">UPCOMING</span>
               <span className="text-lg font-bold text-amber-600">{events.length + registeredSessions.length}</span>
             </div>
           </div>
-          <div style={{ minWidth: "fit-content", display: "flex", alignItems: "center", gap: "6px" }}>
+          <div className="dash-live-badge">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
             <span className="text-sm text-slate-500">Event is live</span>
           </div>
@@ -140,7 +158,7 @@ export default function DashboardPage() {
 
       <div className="flex-1 px-8 py-6">
         {/* Preferences bar */}
-        <div className="rounded-xl border border-slate-200 bg-white px-5 py-4 mb-5" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+        <div className="rounded-xl border border-slate-200 bg-white px-5 py-4 mb-5" style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
           <div>
             <p className="text-sm font-semibold mb-2">Your matching preferences</p>
             <div className="flex flex-wrap gap-1.5">
@@ -158,15 +176,15 @@ export default function DashboardPage() {
           <button onClick={() => router.push("/dashboard/profile")} className="text-sm text-amber-600 hover:underline whitespace-nowrap mt-0.5">Edit preferences →</button>
         </div>
 
-        {/* Additional recommended brands — 4 wide */}
+        {/* Additional recommended brands */}
         {recommended.length > 0 && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
               <p className="text-sm font-semibold text-slate-500">Additional recommended brands</p>
               <button onClick={() => router.push("/dashboard/all-brands")} className="text-xs text-amber-600 hover:underline">Browse all →</button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
-              {recommended.map((b, i) => {
+            <div className="dash-recommended-grid">
+              {recommended.map((b) => {
                 const isFeaturedSlot = b.exhibitor_tier === "featured" || b.exhibitor_tier === "title_sponsor";
                 return (
                   <div key={b.id} className="rounded-xl bg-white p-4" style={{ border: isFeaturedSlot ? "2px solid #BA7517" : "1px solid #e2e8f0", position: "relative" }}>
@@ -203,15 +221,15 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Matched brands (2-col) + sidebar */}
-        <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "24px" }}>
+        {/* Matched brands + sidebar */}
+        <div className="dash-main-grid">
           <div>
             <div className="flex items-center justify-between mb-3">
-            <p className="text-sm font-semibold">Matched & interested</p>
+              <p className="text-sm font-semibold">Matched & interested</p>
               <button onClick={() => router.push("/dashboard/matched-brands")} className="text-xs text-amber-600 hover:underline">View all →</button>
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-            {matched.map((b) => (
+            <div className="dash-matched-grid">
+              {matched.map((b) => (
                 <div key={b.id} className="rounded-xl border border-slate-200 bg-white p-4">
                   <div className="flex items-center gap-3 mb-2">
                     <BrandLogo name={b.name} logoUrl={b.logo_url} size={40} />

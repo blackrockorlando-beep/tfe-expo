@@ -121,7 +121,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         .dash-mobile-header { display: none; }
         .dash-overlay { display: none; }
         .dash-mobile-sidebar { display: none; }
-        @media(max-width: 768px) {
+     @media(max-width: 768px) {
           .dash-sidebar { display: none; }
           .dash-mobile-header {
             display: flex; align-items: center; justify-content: space-between;
@@ -142,7 +142,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             transition: transform 0.25s ease;
             overflow-y: auto;
           }
-        }
+          main { padding: 0 !important; }
+          .px-8 { padding-left: 16px !important; padding-right: 16px !important; }
+        }   
       `}} />
 
       <div style={{ display: "flex", minHeight: "100vh", background: "#fff", color: "#0F172A" }}>
@@ -183,7 +185,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             {sidebarContent}
           </div>
 
-          <main style={{ flex: 1 }}>{children}</main>
+          <main style={{ flex: 1, overflowX: "hidden", maxWidth: "100vw" }}>{children}</main>
         </div>
       </div>
     </>
