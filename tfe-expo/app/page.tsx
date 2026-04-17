@@ -445,7 +445,7 @@ const BODY_CONTENT = `<!-- NAV -->
 <!-- HERO -->
 <section class="hero">
   <div class="hero-left">
-    <div class="hero-eyebrow reveal">Spring 2026 · Virtual · Free to attend</div>
+    <div class="hero-eyebrow reveal">Summer 2026 · Virtual · Free to attend</div>
     <h1 class="hero-title reveal">Find your<br>franchise.<br><em>On your terms.</em></h1>
     <p class="hero-sub reveal">
       You've been thinking about it for a while. The problem isn't finding franchise opportunities —
@@ -485,7 +485,7 @@ const BODY_CONTENT = `<!-- NAV -->
         </div>
       </div>
       <div class="hero-card-footer">
-        <div class="hero-card-footer-text">Founding deadline: April 15, 2026 · Register now to guarantee your place</div>
+        <div class="hero-card-footer-text">Founding deadline: May 15, 2026 · Register now to guarantee your place</div>
       </div>
     </div>
   </div>
@@ -789,7 +789,7 @@ const BODY_CONTENT = `<!-- NAV -->
 
 <!-- REGISTER CTA -->
 <section class="register" id="register">
-  <div class="register-eyebrow">Free registration · Spring 2026</div>
+  <div class="register-eyebrow">Free registration · Summer 2026</div>
   <h2 class="register-title">You've been thinking<br>about it long enough.<br><em>Let's start.</em></h2>
   <p class="register-sub">Register in 60 seconds. No credit card. No broker callback. No commitment until you decide a brand is worth your time.</p>
   <div class="register-form">
@@ -803,7 +803,7 @@ const BODY_CONTENT = `<!-- NAV -->
     <span class="register-note">Education sessions included</span>
   </div>
   <div class="register-deadline">
-    <div class="register-deadline-text">Early registration closes April 15, 2026 · 847+ buyers already registered</div>
+    <div class="register-deadline-text">Early registration closes May 15, 2026 · 847+ buyers already registered</div>
   </div>
 </section>
 
