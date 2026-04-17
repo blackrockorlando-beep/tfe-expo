@@ -35,6 +35,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const pathname = usePathname();
   const [buyerName, setBuyerName] = useState("");
   const [buyerInitials, setBuyerInitials] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     async function loadBuyer() {
@@ -52,73 +53,139 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     loadBuyer();
   }, []);
 
+  // Close menu on route change
+  useEffect(() => {
+    setMenuOpen(false);
+  }, [pathname]);
+
   async function handleSignOut() {
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/login");
   }
 
-  return (
-    <div className="flex min-h-screen bg-white text-slate-900">
-      <aside className="flex w-56 shrink-0 flex-col bg-slate-900 text-white">
-        <div className="px-5 pt-6 pb-4">
-          <p className="text-sm font-semibold">
-            <span className="text-amber-400">The Franchise Edge</span>
-          </p>
-          <p className="text-xs text-slate-400">Virtual Expo · Spring 2026</p>
+  const sidebarContent = (
+    <>
+      <div style={{ padding: "24px 20px 16px" }}>
+        <p style={{ fontSize: 14, fontWeight: 600, color: "#F59E0B" }}>The Franchise Edge</p>
+        <p style={{ fontSize: 12, color: "#94A3B8" }}>Virtual Expo · Spring 2026</p>
+      </div>
+
+      {buyerName && (
+        <div style={{ margin: "0 16px 24px", display: "flex", alignItems: "center", gap: 12, background: "#1E293B", borderRadius: 8, padding: "12px" }}>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: "#F59E0B", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 700, color: "#fff", flexShrink: 0 }}>
+            {buyerInitials}
+          </div>
+          <p style={{ fontSize: 14, fontWeight: 500, color: "#fff", margin: 0 }}>{buyerName}</p>
         </div>
+      )}
 
-        {buyerName && (
-          <div className="mx-4 mb-6 flex items-center gap-3 rounded-lg bg-slate-800 px-3 py-3">
-            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-amber-500 text-xs font-bold text-white">
-              {buyerInitials}
-            </div>
-            <div>
-              <p className="text-sm font-medium">{buyerName}</p>
-            </div>
+      <nav style={{ flex: 1, padding: "0 16px" }}>
+        {NAV_SECTIONS.map((section) => (
+          <div key={section.label} style={{ marginBottom: 20 }}>
+            <p style={{ fontSize: 10, fontWeight: 600, letterSpacing: "0.15em", color: "#64748B", marginBottom: 8 }}>
+              {section.label}
+            </p>
+            {section.items.map((item) => (
+              <button key={item.name}
+                onClick={() => { router.push(item.path); setMenuOpen(false); }}
+                style={{
+                  display: "flex", alignItems: "center", gap: 8, width: "100%",
+                  padding: "10px 12px", borderRadius: 8, border: "none", cursor: "pointer",
+                  fontSize: 14, textAlign: "left",
+                  background: pathname === item.path ? "#334155" : "transparent",
+                  color: pathname === item.path ? "#fff" : "#94A3B8",
+                  marginBottom: 2,
+                }}>
+                <span style={{ width: 6, height: 6, borderRadius: "50%", background: pathname === item.path ? "#F59E0B" : "#475569", flexShrink: 0 }} />
+                {item.name}
+              </button>
+            ))}
           </div>
-        )}
+        ))}
 
-        <nav className="flex-1 space-y-5 px-4">
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label}>
-              <p className="mb-2 text-xs font-semibold tracking-widest text-slate-500">
-                {section.label}
-              </p>
-              <ul className="space-y-1">
-                {section.items.map((item) => (
-                  <li key={item.name}>
-                    <button
-                      onClick={() => router.push(item.path)}
-                      className={`flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition ${
-                        pathname === item.path
-                          ? "bg-slate-700 text-white"
-                          : "text-slate-400 hover:bg-slate-800 hover:text-white"
-                      }`}
-                    >
-                      <span className="flex items-center gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-slate-500" />
-                        {item.name}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+        <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+          <button onClick={handleSignOut}
+            style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", padding: "10px 12px", borderRadius: 8, border: "1px solid #334155", background: "transparent", color: "#94A3B8", fontSize: 14, cursor: "pointer" }}>
+            Sign out
+          </button>
+        </div>
+      </nav>
+    </>
+  );
 
-<div className="mt-4 pt-4 border-t border-slate-700/50">
-            <button onClick={handleSignOut}
-              className="flex w-full items-center gap-2 rounded-lg border border-slate-700 px-3 py-2 text-sm text-slate-400 transition hover:bg-red-900/30 hover:text-red-400 hover:border-red-800">
-              Sign out
+  return (
+    <>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .dash-sidebar { display: flex; width: 224px; flex-shrink: 0; flex-direction: column; background: #0F172A; color: #fff; min-height: 100vh; }
+        .dash-mobile-header { display: none; }
+        .dash-overlay { display: none; }
+        .dash-mobile-sidebar { display: none; }
+        @media(max-width: 768px) {
+          .dash-sidebar { display: none; }
+          .dash-mobile-header {
+            display: flex; align-items: center; justify-content: space-between;
+            position: sticky; top: 0; z-index: 50;
+            background: #0F172A; padding: 12px 16px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+          }
+          .dash-overlay {
+            display: ${menuOpen ? "block" : "none"};
+            position: fixed; inset: 0; z-index: 90;
+            background: rgba(0,0,0,0.5);
+          }
+          .dash-mobile-sidebar {
+            display: flex; flex-direction: column;
+            position: fixed; top: 0; left: 0; bottom: 0; z-index: 100;
+            width: 280px; background: #0F172A;
+            transform: translateX(${menuOpen ? "0" : "-100%"});
+            transition: transform 0.25s ease;
+            overflow-y: auto;
+          }
+        }
+      `}} />
+
+      <div style={{ display: "flex", minHeight: "100vh", background: "#fff", color: "#0F172A" }}>
+        {/* Desktop sidebar */}
+        <aside className="dash-sidebar">
+          {sidebarContent}
+        </aside>
+
+        {/* Mobile header */}
+        <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+          <div className="dash-mobile-header">
+            <button onClick={() => setMenuOpen(true)}
+              style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" strokeWidth="2" strokeLinecap="round">
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </svg>
             </button>
+            <span style={{ fontSize: 14, fontWeight: 600, color: "#F59E0B" }}>The Franchise Edge</span>
+            <div style={{ width: 24 }} />
           </div>
-        </nav>
 
-        
-      </aside>
+          {/* Mobile overlay */}
+          <div className="dash-overlay" onClick={() => setMenuOpen(false)} />
 
-      <main className="flex-1">{children}</main>
-    </div>
+          {/* Mobile slide-out sidebar */}
+          <div className="dash-mobile-sidebar">
+            <div style={{ display: "flex", justifyContent: "flex-end", padding: "12px 16px" }}>
+              <button onClick={() => setMenuOpen(false)}
+                style={{ background: "none", border: "none", cursor: "pointer", padding: 4 }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+              </button>
+            </div>
+            {sidebarContent}
+          </div>
+
+          <main style={{ flex: 1 }}>{children}</main>
+        </div>
+      </div>
+    </>
   );
 }
