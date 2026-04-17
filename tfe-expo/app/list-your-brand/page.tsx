@@ -349,7 +349,88 @@ footer {
 .fade-up:nth-child(3){ animation-delay: .3s; }
 .fade-up:nth-child(4){ animation-delay: .4s; }
 .fade-up:nth-child(5){ animation-delay: .5s; }
-@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }`;
+@keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
+
+@media(max-width: 640px){
+  /* NAV */
+  nav { padding: 0 16px; height: 54px; }
+  .nav-links { display: none; }
+  .nav-cta { font-size: 12px; padding: 8px 14px; }
+
+  /* HERO */
+  .hero { padding: 70px 20px 40px; min-height: auto; }
+  .hero::before { display: none; }
+  .hero-title { font-size: 36px !important; }
+  .hero-subtitle { font-size: 15px; margin-bottom: 28px; }
+  .hero-ctas { flex-direction: column; gap: 10px; margin-bottom: 32px; }
+  .btn-primary, .btn-ghost { text-align: center; padding: 14px 24px; font-size: 14px; width: 100%; }
+  .hero-stats { gap: 20px; }
+  .hero-stat-num { font-size: 24px; }
+  .hero-stat-label { font-size: 11px; }
+  .hero-right { position: relative; right: auto; top: auto; transform: none; width: 100%; margin-top: 32px; }
+  .hero-card { padding: 20px; margin-bottom: 12px; }
+  .hero-card-date { font-size: 18px; }
+  .tier-row { padding: 10px 12px; }
+  .tier-name { font-size: 12px; }
+  .tier-price { font-size: 13px; }
+
+  /* SECTIONS */
+  section { padding: 56px 20px; }
+  .section-title { font-size: 26px !important; }
+  .section-sub { font-size: 14px; margin-bottom: 32px; }
+
+  /* PROBLEM */
+  .problem-grid { grid-template-columns: 1fr; gap: 0; }
+  .problem-card { padding: 24px 20px; }
+  .problem-num { font-size: 36px; margin-bottom: 10px; }
+  .problem-title { font-size: 16px; }
+  .problem-body { font-size: 13px; }
+
+  /* DIFF */
+  .diff-grid { grid-template-columns: 1fr; gap: 12px; }
+  .diff-card { padding: 24px 20px; }
+  .diff-title { font-size: 17px; }
+  .diff-body { font-size: 13px; }
+
+  /* CONTRAST TABLE */
+  .contrast-table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; font-size: 12px; }
+  .contrast-table th { padding: 10px 12px; font-size: 10px; white-space: nowrap; }
+  .contrast-table td { padding: 10px 12px; font-size: 12px; min-width: 140px; }
+  .contrast-table td.label { min-width: 100px; }
+  .contrast-verdict { font-size: 13px; padding: 16px 18px; }
+
+  /* QUOTE */
+  .quote-band { padding: 40px 20px; }
+  .quote-text { font-size: 20px !important; }
+  .quote-source { font-size: 11px; }
+
+  /* TIERS */
+  .tiers-grid { grid-template-columns: 1fr; gap: 16px; }
+  .tier-top { padding: 24px 20px 18px; }
+  .tier-card-price { font-size: 36px; }
+  .tier-features { padding: 18px 20px 24px; }
+  .tier-cta { width: calc(100% - 40px); margin: 0 20px 20px; }
+
+  /* CREDENTIALS */
+  .creds-grid { grid-template-columns: 1fr; gap: 2px; }
+  .cred-card { padding: 24px 20px; }
+  .cred-name { font-size: 17px; }
+  .cred-result { font-size: 22px; }
+  .cred-founders { grid-template-columns: 1fr; gap: 12px; }
+  .founder-card { padding: 22px 20px; }
+
+  /* DEADLINE */
+  .deadline { padding: 56px 20px; }
+  .deadline-inner { padding: 32px 24px; flex-direction: column; gap: 24px; }
+  .deadline-title { font-size: 26px !important; }
+  .deadline-sub { font-size: 14px; }
+  .deadline-highlight { font-size: 36px; }
+  .deadline-right { text-align: left; }
+
+  /* FOOTER */
+  footer { padding: 24px 20px; flex-direction: column; align-items: flex-start; gap: 12px; }
+  .footer-links { flex-wrap: wrap; gap: 12px; }
+}`;
 
 const BODY_CONTENT = `<!-- NAV -->
 <nav>
