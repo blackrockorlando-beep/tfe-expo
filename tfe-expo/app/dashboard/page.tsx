@@ -117,11 +117,12 @@ export default function DashboardPage() {
         @media(max-width: 768px) {
           .dash-header-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
           .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: none; width: 100%; }
-          .dash-recommended-grid { grid-template-columns: 1fr 1fr; }
+          .dash-recommended-grid { grid-template-columns: 1fr 1fr; overflow: hidden; }
           .dash-main-grid { grid-template-columns: 1fr; }
           .dash-matched-grid { grid-template-columns: 1fr; }
           .dash-live-badge { display: none; }
-        }
+        .flex-1.px-8 { padding-left: 12px !important; padding-right: 12px !important; }
+          }
       `}} />
 
       {/* Header — welcome + stats + live badge */}
