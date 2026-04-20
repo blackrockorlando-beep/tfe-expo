@@ -117,12 +117,28 @@ export default function DashboardPage() {
         @media(max-width: 768px) {
           .dash-header-inner { flex-direction: column; align-items: flex-start; gap: 12px; }
           .dash-stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; flex: none; width: 100%; }
-          .dash-recommended-grid { grid-template-columns: 1fr 1fr; overflow: hidden; }
+          .dash-recommended-grid {
+            display: flex;
+            grid-template-columns: none;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            margin: 0 -12px;
+            padding: 14px 12px 8px;
+            gap: 10px;
+          }
+          .dash-recommended-grid::-webkit-scrollbar { display: none; }
+          .dash-recommended-grid > div {
+            flex: 0 0 240px;
+            scroll-snap-align: start;
+          }
           .dash-main-grid { grid-template-columns: 1fr; }
           .dash-matched-grid { grid-template-columns: 1fr; }
           .dash-live-badge { display: none; }
-        .flex-1.px-8 { padding-left: 12px !important; padding-right: 12px !important; }
-          }
+          .flex-1.px-8 { padding-left: 12px !important; padding-right: 12px !important; }
+        }
       `}} />
 
       {/* Header — welcome + stats + live badge */}
